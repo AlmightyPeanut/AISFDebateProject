@@ -122,19 +122,24 @@ class Debate:
 
         return prepared_debate_user_prompt
 
-    def prepare_transcript_prompt(self, correct_first: bool = True) -> str:
-        if correct_first:
+    def prepare_transcript_prompt(self, correct_agent_first: bool = True) -> str:
+        if correct_agent_first:
             first_agent = "correct_agent"
             second_agent = "false_agent"
         else:
             first_agent = "false_agent"
             second_agent = "correct_agent"
 
-        # TODO: remove the text in the thinking tags
+        # TODO: remove the text in the thinking tags for opponent
         result = ""
         for debate_round in range(len(self.agent_message_history["correct_agent"])):
-            result += f"<your_argument>{self.agent_message_history[first_agent][debate_round]}</your_argument>\n"
-            result += f"<opponent_argument>{self.agent_message_history[second_agent][debate_round]}</opponent_argument>\n"
+            agent_argument = self.agent_message_history[first_agent][debate_round]
+            agent_argument = re.search(r"<argument>([\s\S]*?)</argument>", agent_argument).group(1).strip()
+            result += f"<your_argument>{agent_argument}</your_argument>\n"
+
+            opponent_argument = self.agent_message_history[second_agent][debate_round]
+            opponent_argument = re.search(r"<argument>([\s\S]*?)</argument>", opponent_argument).group(1).strip()
+            result += f"<opponent_argument>{opponent_argument}</opponent_argument>\n"
 
         # TODO: restrict result to 900 words?
         return result.rstrip()
