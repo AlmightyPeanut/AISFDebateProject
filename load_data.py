@@ -16,8 +16,8 @@ PARSED_DATA_DIR = "data/parsed_data"
 class Dataset:
     def __init__(self):
         if not os.path.exists(PARSED_DATA_DIR):
-            os.makedirs(PARSED_DATA_DIR)
             article_data, question_data = load_data()
+            os.makedirs(PARSED_DATA_DIR)
             article_data.write_csv(os.path.join(PARSED_DATA_DIR, "article_data.csv"))
             question_data.write_csv(os.path.join(PARSED_DATA_DIR, "question_data.csv"))
         else:
@@ -52,7 +52,7 @@ def load_dataset(path: str | os.PathLike[str]) -> tuple[pl.DataFrame, pl.DataFra
 
     article_data = data.select(
         pl.col("article_id").cast(pl.Int64),
-        pl.col("article"),
+        pl.col("article").str.replace_all(r"\n", " ").str.replace_all(r"\s+", " "),
     ).unique()
 
     questions_data = data.select(
