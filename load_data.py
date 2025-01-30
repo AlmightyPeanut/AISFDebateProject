@@ -28,9 +28,9 @@ class Dataset:
         self.question_data = question_data
 
     def __iter__(self) -> Iterator[tuple[str, str, list[str]]]:
-        for question in self.question_data.iter_rows():
-            article = self.article_data.filter(pl.col("article_id") == question[0]).select(pl.col("article")).item()
-            yield article, question[1], question[2], question[3]
+        for question in self.question_data.with_row_index().iter_rows():
+            article = self.article_data.filter(pl.col("article_id") == question[1]).select(pl.col("article")).item()
+            yield article, question[2], question[3], question[4], question[0]
 
 
 def load_dataset(path: str | os.PathLike[str]) -> tuple[pl.DataFrame, pl.DataFrame]:
