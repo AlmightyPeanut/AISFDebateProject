@@ -10,8 +10,6 @@ from load_data import Dataset
 
 if __name__ == '__main__':
     data = Dataset()
-    for article, question, correct_answer, false_answer in data:
-        pass
     for article, question, correct_answer, false_answer, question_id in data:
         debate = Debate(question_id=question_id, story=article, question=question, correct_answer=correct_answer,
                         false_answer=false_answer)
