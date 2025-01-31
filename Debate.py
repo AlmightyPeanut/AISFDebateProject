@@ -219,7 +219,7 @@ class Debate:
         for quote in re.findall(r"<quote>([\s\S]*?)</quote>", agent_response):
             cleaned_quote = re.sub(r"^\W+", "", quote)
             cleaned_quote = re.sub(r"\W+$", "", cleaned_quote)
-            if cleaned_quote and re.search(cleaned_quote, self.story):
+            if cleaned_quote and re.search(cleaned_quote.lower(), self.story_lower_case):
                 agent_response = re.sub(f"<quote>{quote}</quote>", f"<v_quote>{cleaned_quote}</v_quote>",
                                         agent_response)
             else:
