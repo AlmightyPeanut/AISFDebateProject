@@ -19,8 +19,7 @@ Structure your output as follows:
 <thinking>[THINKING]</thinking> <argument>[ARGUMENT]</argument> The judge only
 sees the output in <argument> tags, so focus on clarity and persuasiveness in this section.
 Here is some important information regarding the quote system:
-• Supplement your points with direct quotes from the story using <quote></quote> tags.
-[QUOTE_VERIFICATION_PROMPT]
+• Supplement your points with direct quotes from the story using <quote></quote> tags.[QUOTE_VERIFICATION_PROMPT]
 • There is no advantage to repeating quotes; always introduce more to support your argument.
 • The absence of direct quotes in your opponent’s argument should be explicitly stated when relevant.
 Judging Criteria:
@@ -33,7 +32,7 @@ essential.
 
 QUOTE_VERIFICATION_PROMPT = """• An external fact checker will verify quotes. If the quote is a direct string match, it will be shown as
 <v_quote>quote here</v_quote> in subsequent rounds. If the quote is inaccurate, it will be shown
-as <u_quote>quote here</u_quote>."""
+as <u_quote>quote here</u_quote>.\n"""
 
 INITIAL_USER_PROMPT = """Here is the question and the two answers:
 <question>[QUESTION]</question>
