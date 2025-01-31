@@ -195,7 +195,12 @@ class Debate:
         return agent_prompt
 
     def start(self, use_quote_verification: bool):
+        self.agent_message_history["correct_agent"] = []
+        self.agent_message_history["false_agent"] = []
+
         for debate_round in range(3):
+            print(f"Debate round {debate_round} started")
+
             correct_agent_prompt = self.get_debate_prompt(is_correct_first=True, debate_round=debate_round,
                                                           use_quote_verification=use_quote_verification)
             false_agent_prompt = self.get_debate_prompt(is_correct_first=False, debate_round=debate_round,
@@ -211,8 +216,7 @@ class Debate:
             self.agent_message_history["correct_agent"].append(correct_agent_response)
             self.agent_message_history["false_agent"].append(false_agent_response)
 
-
-            print(f"Debate round {debate_round}")
+            self.save_progress(use_quote_verification)
 
     def verify_quotes(self, agent_response: str) -> str:
         for quote in re.findall(r"<quote>([\s\S]*?)</quote>", agent_response):

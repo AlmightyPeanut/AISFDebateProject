@@ -11,7 +11,14 @@ from load_data import Dataset
 if __name__ == '__main__':
     data = Dataset()
     for article, question, correct_answer, false_answer, question_id in data:
+        print(f"Starting experiment for question {question_id + 1}")
         debate = Debate(question_id=question_id, story=article, question=question, correct_answer=correct_answer,
                         false_answer=false_answer)
         debate.start(use_quote_verification=True)
         debate.start(use_quote_verification=False)
+        print()
+
+        if question_id >= 50:
+            break
+
+    print("Finished experiments.")
