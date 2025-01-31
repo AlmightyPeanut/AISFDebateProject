@@ -82,6 +82,7 @@ class Debate:
     def __init__(self, question_id: int, story: str, question: str, correct_answer: str, false_answer: str):
         self.question_id = question_id
         self.story = story
+        self.story_lower_case = story.lower()
         self.question = question
         self.correct_answer = correct_answer
         self.false_answer = false_answer
@@ -131,19 +132,29 @@ class Debate:
             first_agent = "false_agent"
             second_agent = "correct_agent"
 
-        # TODO: remove the text in the thinking tags for opponent
         result = ""
         for debate_round in range(len(self.agent_message_history["correct_agent"])):
-            agent_argument = self.agent_message_history[first_agent][debate_round]
-            agent_argument = re.search(r"<argument>([\s\S]*?)</argument>", agent_argument).group(1).strip()
+            agent_message = self.agent_message_history[first_agent][debate_round]
+            agent_argument = self.extract_and_update_argument(agent_message)
             result += f"<your_argument>{agent_argument}</your_argument>\n"
 
-            opponent_argument = self.agent_message_history[second_agent][debate_round]
-            opponent_argument = re.search(r"<argument>([\s\S]*?)</argument>", opponent_argument).group(1).strip()
+            opponent_message = self.agent_message_history[second_agent][debate_round]
+            opponent_argument = self.extract_and_update_argument(opponent_message)
             result += f"<opponent_argument>{opponent_argument}</opponent_argument>\n"
 
         # TODO: restrict result to 900 words?
         return result.rstrip()
+
+    def extract_and_update_argument(self, agent_id: str, debate_round: int) -> str:
+        agent_message = self.agent_message_history[agent_id][debate_round]
+        extracted_argument = re.search(r"<argument>([\s\S]*?)</argument>", agent_message)
+        if not extracted_argument and re.search(r"<argument>", agent_message):
+            agent_message += "</argument>"
+            self.agent_message_history[agent_id][debate_round] = agent_message
+            extracted_argument = re.search(r"<argument>([\s\S]*?)</argument>", agent_message)
+        else:
+            raise ValueError("Argument not found in agent message: " + agent_message)
+        return extracted_argument.group(1).strip()
 
     def get_debate_prompt(self, is_correct_first: bool, debate_round: int, use_quote_verification: bool) -> list[
         dict[str, str]]:
