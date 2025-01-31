@@ -211,7 +211,6 @@ class Debate:
             self.agent_message_history["correct_agent"].append(correct_agent_response)
             self.agent_message_history["false_agent"].append(false_agent_response)
 
-            self.save_progress()
 
             print(f"Debate round {debate_round}")
 
@@ -228,10 +227,16 @@ class Debate:
 
         return agent_response
 
-    def save_progress(self):
+    def save_progress(self, used_quote_verification: bool):
         if not os.path.isdir(CONVERSATIONS_DIR):
             os.makedirs(CONVERSATIONS_DIR)
 
-        conversations_file_path = os.path.join(CONVERSATIONS_DIR, str(self.question_id) + '.json')
+        if used_quote_verification:
+            conversations_file_name = "verified_"
+        else:
+            conversations_file_name = "unverified_"
+
+        conversations_file_name += str(self.question_id) + '.json'
+        conversations_file_path = os.path.join(CONVERSATIONS_DIR, conversations_file_name)
         with open(conversations_file_path, 'w+') as f:
             f.write(json.dumps(self.agent_message_history, ensure_ascii=False))
