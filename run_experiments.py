@@ -15,7 +15,7 @@ if __name__ == '__main__':
         debate.start_judging()
         print()
 
-        if question_id >= 50:
+        if question_id > 100:
             break
 
     print("Finished experiments.")
