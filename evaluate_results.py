@@ -62,18 +62,18 @@ if __name__ == '__main__':
 
     verified_judgement_results = pl.from_dicts(correct_verified_judgements).with_columns(verified=1)
     unverified_judgement_results = pl.from_dicts(correct_unverified_judgements).with_columns(verified=0)
-    print(f"Verified quotes results: {verified_judgement_results["is_judge_correct"].sum()}")
-    print(f"Unverified quotes results: {unverified_judgement_results["is_judge_correct"].sum()}")
+    print(f"Correct judge classification with quote verification system: {verified_judgement_results["is_judge_correct"].sum()}")
+    print(f"Correct judge classification without quote verification system: {unverified_judgement_results["is_judge_correct"].sum()}")
 
     judgement_results = unverified_judgement_results.vstack(verified_judgement_results)
 
-    sns.barplot(judgement_results, y="is_judge_correct", hue="verified", errorbar=None, legend=False, gap=.2)
-    plt.xlim((-.4, .4))
-    plt.ylim((.0, 1.))
-    plt.ylabel("Correct Judgement")
-    plt.xticks(ticks=[-0.2, .2], labels=["No", "Yes"])
-    plt.xlabel("Uses verified quote system?")
-    plt.show()
+    # sns.barplot(judgement_results, y="is_judge_correct", hue="verified", errorbar=None, legend=False, gap=.2)
+    # plt.xlim((-.4, .4))
+    # plt.ylim((.0, 1.))
+    # plt.ylabel("Correct Judgement")
+    # plt.xticks(ticks=[-0.2, .2], labels=["No", "Yes"])
+    # plt.xlabel("Uses verified quote system?")
+    # plt.savefig("data/quote_system_results.png")
 
     joined_judgement_results = verified_judgement_results.drop("verified").join(unverified_judgement_results.drop("verified"),
                                                                          on=["question_id", "is_correct_first"],
@@ -105,19 +105,36 @@ if __name__ == '__main__':
     print(f"In {len(judgement_mislead_by_quote_verification)} questions the quote verification improved judgement.")
 
     correctly_judged_correct_answer_first = joined_judgement_results.filter(
-        pl.col("is_judge_correct") & pl.col("is_correct_first")
-    )
+        pl.col("is_correct_first") == 1
+    ).sum().select(pl.col("is_judge_correct"), pl.col("is_judge_correct_unverified"))
     correctly_judged_correct_answer_second = joined_judgement_results.filter(
-        pl.col("is_judge_correct") & pl.col("is_correct_first")
-    )
-    print(f"{len(correctly_judged_correct_answer_first)} questions are correctly judged with the correct answer displayed first.")
-    print(f"{len(correctly_judged_correct_answer_second)} questions are correctly judged with the correct answer displayed second.")
-    sns.barplot(joined_judgement_results, y="is_judge_correct", hue="is_correct_first", errorbar=None, legend=False, gap=.2)
-    plt.xlim((-.4, .4))
+        pl.col("is_correct_first") == 0
+    ).sum().select(pl.col("is_judge_correct"), pl.col("is_judge_correct_unverified"))
+    print(f"{correctly_judged_correct_answer_first} questions are correctly judged with the correct answer displayed first.")
+    print(f"{correctly_judged_correct_answer_second} questions are correctly judged with the correct answer displayed second.")
+
+    concatted_judgement_results = pl.concat([
+        joined_judgement_results.with_columns(
+            pl.col("question_id"),
+            pl.col("is_correct_first"),
+            pl.col("is_judge_correct"),
+            verified=1,
+        ),
+        joined_judgement_results.with_columns(
+            pl.col("question_id"),
+            pl.col("is_correct_first"),
+            pl.col("is_judge_correct_unverified"),
+            verified=0,
+        ),
+    ])
+
+    plt.clf()
+    sns.barplot(concatted_judgement_results, x="verified", y="is_judge_correct", hue="is_correct_first", errorbar=None, legend=False)
+    plt.legend(title="Correct answer first?", labels=["No", "Yes"])
     plt.ylim((.0, 1.))
     plt.ylabel("Correct Judgement")
-    plt.xticks(ticks=[-0.2, .2], labels=["No", "Yes"])
-    plt.xlabel("Correct answer is displayed first?")
-    plt.show()
-
+    plt.xticks(ticks=[0, 1], labels=["No", "Yes"])
+    plt.xlabel("Uses verified quote system?")
+    plt.savefig("data/position_bias_results.png")
+    # plt.show()
 
