@@ -1,7 +1,3 @@
-# add naive (no access to the document and (non-interactive) debate)
-# add different strategies for debate?
-# - never admit defeat (Trump tactic)
-# - make stuff up about the original text
 from Debate import Debate
 from load_data import Dataset
 
@@ -14,8 +10,9 @@ if __name__ == '__main__':
         print(f"Starting experiment for question {question_id + 1}")
         debate = Debate(question_id=question_id, story=article, question=question, correct_answer=correct_answer,
                         false_answer=false_answer)
-        debate.start(use_quote_verification=True)
-        debate.start(use_quote_verification=False)
+        debate.start_discussion(use_quote_verification=True)
+        debate.start_discussion(use_quote_verification=False)
+        debate.start_judging()
         print()
 
         if question_id >= 50:
